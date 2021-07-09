@@ -30,11 +30,12 @@ impl Block {
 
 #[cfg(test)]
 mod tests {
+    use std::time::SystemTime;
     use super::Block;
 
     #[test]
     fn test_block_creation() {
-        let block = Block::new(0,0,0,0);
+        let block = Block::new(SystemTime::now(),0,0,0);
         assert_eq!(0, block.data);
     }
 }
