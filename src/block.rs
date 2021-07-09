@@ -1,13 +1,15 @@
+use std::time::SystemTime;
+
 #[derive(Debug)]
 struct Block {
-    pub timestamp : u8,
+    pub timestamp : SystemTime,
     pub last_hash: u8,
     pub hash: u8,
     pub data: u8,
 }
 
 impl Block {
-    pub fn new(timestamp : u8, last_hash: u8, hash: u8, data: u8) -> Self {
+    pub fn new(timestamp : SystemTime, last_hash: u8, hash: u8, data: u8) -> Self {
         Block {
             timestamp,
             last_hash,
@@ -19,7 +21,7 @@ impl Block {
     // Genesis function return the Genesis block
     // which is the first block in our blockchain.
     pub fn genesis() -> Self {
-        Self::new(0,0,0,0)
+        Self::new(SystemTime::now(),0,0,0)
     }
 }
 
