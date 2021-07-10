@@ -23,6 +23,14 @@ impl Block {
     pub fn genesis() -> Self {
         Self::new(SystemTime::now(),0,0,0)
     }
+
+    pub fn mine_block(last_block: Block, data: u8) -> Block {
+        let now = SystemTime::now();
+        let last_hash = last_block.hash;
+        let hash = 1;
+
+        Block::new(now, last_hash, hash, 0)
+    }
 }
 
 
