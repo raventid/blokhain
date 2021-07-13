@@ -1,2 +1,5 @@
+use crate::block::Block;
 
-struct Blokhain {}
+struct Blokhain {
+    chain: Vec<Block>
+}

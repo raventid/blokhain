@@ -3,7 +3,7 @@ use std::time::SystemTime;
 use sha2::{Digest, Sha256};
 
 #[derive(Debug, Clone)]
-struct Block {
+pub struct Block {
     pub timestamp : SystemTime,
     pub last_hash: Vec<u8>,
     pub hash: Vec<u8>,
