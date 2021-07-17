@@ -1,6 +1,6 @@
 use crate::block::Block;
 
-struct Blokhain {
+pub struct Blokhain {
     chain: Vec<Block>
 }
 

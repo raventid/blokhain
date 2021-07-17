@@ -5,3 +5,7 @@ edition = "2018"
 
 [dependencies]
 sha2 = "0.9.5"
+
+[dev-dependencies]
+quickcheck = "1"
+quickcheck_macros = "1"

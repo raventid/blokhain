@@ -29,22 +29,24 @@ impl Block {
     pub fn mine_block(last_block: Block, data: u8) -> Block {
         let now = SystemTime::now();
         let last_hash = last_block.hash;
-        let hash = {
-            let millis = now
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("Time went backwards")
-                .as_millis()
-                .to_string();
-
-            Sha256::new()
-                .chain(millis.as_bytes())
-                .chain(last_hash.clone())
-                .chain([data])
-                .finalize()
-                .to_vec()
-        };
+        let hash = Self::calculate_hash(&last_hash, now, data);
 
         Block::new(now, last_hash, hash, 0)
+    }
+
+    fn calculate_hash(last_hash: &Vec<u8>, timestamp: SystemTime, data: u8) -> Vec<u8> {
+        let millis = timestamp
+            .duration_since(std::time::UNIX_EPOCH)
+            .expect("Time went backwards")
+            .as_millis()
+            .to_string();
+
+        Sha256::new()
+            .chain(millis.as_bytes())
+            .chain(last_hash.clone())
+            .chain([data])
+            .finalize()
+            .to_vec()
     }
 }
 
@@ -52,11 +54,27 @@ impl Block {
 #[cfg(test)]
 mod tests {
     use super::Block;
+    use quickcheck as qc;
+    use quickcheck_macros::quickcheck;
+
+    impl quickcheck::Arbitrary for Block {
+      fn arbitrary(_g: &mut qc::Gen) -> Self {
+          Block::genesis()
+      }
+    }
 
     #[test]
     fn test_block_creation() {
         let genesis = Block::genesis();
         let block = Block::mine_block(genesis.clone(), 9);
         assert_eq!(genesis.hash, block.last_hash);
+    }
+
+    #[quickcheck]
+    fn new_block_hash_is_a_hash_from_timestamp_and_previous_hash_and_previous_data(previous_block: Block) -> bool {
+        let data = 0;
+        let next_block = Block::mine_block(previous_block.clone(), data);
+
+        Block::calculate_hash(&previous_block.hash, next_block.timestamp, previous_block.data) == next_block.hash
     }
 }
