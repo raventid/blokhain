@@ -34,8 +34,8 @@ impl Block {
         Block::new(now, last_hash, hash, 0)
     }
 
-    fn calculate_hash(last_hash: &Vec<u8>, timestamp: SystemTime, data: u8) -> Vec<u8> {
-        let millis = timestamp
+    fn calculate_hash(last_hash: &Vec<u8>, new_timestamp: SystemTime, data: u8) -> Vec<u8> {
+        let millis = new_timestamp
             .duration_since(std::time::UNIX_EPOCH)
             .expect("Time went backwards")
             .as_millis()
