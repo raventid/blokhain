@@ -31,11 +31,19 @@ impl Block {
         let last_hash = last_block.hash;
         let hash = Self::calculate_hash(&last_hash, now, data);
 
-        Block::new(now, last_hash, hash, 0)
+        Block::new(now, last_hash, hash, data)
     }
 
-    fn calculate_hash(last_hash: &Vec<u8>, new_timestamp: SystemTime, data: u8) -> Vec<u8> {
-        let millis = new_timestamp
+    pub fn get_hash(&self) -> Vec<u8> {
+        let timestamp = self.timestamp;
+        let last_hash = self.last_hash.clone();
+        let data = self.data;
+
+        Self::calculate_hash(&last_hash, timestamp, data)
+    }
+
+    fn calculate_hash(last_hash: &Vec<u8>, timestamp: SystemTime, data: u8) -> Vec<u8> {
+        let millis = timestamp
             .duration_since(std::time::UNIX_EPOCH)
             .expect("Time went backwards")
             .as_millis()
@@ -72,9 +80,9 @@ mod tests {
 
     #[quickcheck]
     fn new_block_hash_is_a_hash_from_timestamp_and_previous_hash_and_previous_data(previous_block: Block) -> bool {
-        let data = 0;
+        let data = 1;
         let next_block = Block::mine_block(previous_block.clone(), data);
 
-        Block::calculate_hash(&previous_block.hash, next_block.timestamp, previous_block.data) == next_block.hash
+        next_block.get_hash() == next_block.hash
     }
 }
