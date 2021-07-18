@@ -34,7 +34,7 @@ impl Block {
         Block::new(now, last_hash, hash, data)
     }
 
-    pub fn get_hash(&self) -> Vec<u8> {
+    pub fn recalculate_hash(&self) -> Vec<u8> {
         let timestamp = self.timestamp;
         let last_hash = self.last_hash.clone();
         let data = self.data;
@@ -79,10 +79,10 @@ mod tests {
     }
 
     #[quickcheck]
-    fn new_block_hash_is_a_hash_from_timestamp_and_previous_hash_and_previous_data(previous_block: Block) -> bool {
+    fn new_block_hash_is_a_hash_from_timestamp_and_previous_hash_and_data(previous_block: Block) -> bool {
         let data = 1;
         let next_block = Block::mine_block(previous_block.clone(), data);
 
-        next_block.get_hash() == next_block.hash
+        next_block.recalculate_hash() == next_block.hash
     }
 }
