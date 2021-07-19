@@ -23,7 +23,7 @@ impl Block {
     // Genesis function return the Genesis block
     // which is the first block in our blockchain.
     pub fn genesis() -> Self {
-        Self::new(SystemTime::now(), [0].to_vec(), [0].to_vec(), 0)
+        Self::new(std::time::UNIX_EPOCH, [0].to_vec(), [0].to_vec(), 0)
     }
 
     pub fn mine_block(last_block: Block, data: u8) -> Block {
