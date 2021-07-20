@@ -40,6 +40,7 @@ mod tests {
 
     use super::Blokhain;
 
+    // TODO: redo these tests as prop-based
     #[test]
     fn test_is_valid_chain() {
        assert!(Blokhain::new(None).is_valid_chain())
