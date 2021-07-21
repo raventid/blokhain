@@ -33,6 +33,13 @@ impl Blokhain {
         }
         true
     }
+
+    fn replace_chain(&mut self, new_chain: Blokhain) -> Result<(), String> {
+        if new_chain.chain.len() <= self.chain.len() { return Err("New chain is NOT longer than the current one".to_string()) }
+        if !new_chain.is_valid_chain() { return Err("New chain is NOT valid".to_string()) }
+        self.chain = new_chain.chain;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -65,5 +72,41 @@ mod tests {
        };
 
        assert!(!chain.is_valid_chain())
+    }
+
+    #[test]
+    fn test_replace_chain() {
+        let mut bc1 = Blokhain::new(None);
+        let mut bc2 = Blokhain::new(None);
+
+        bc2.add_block(1);
+
+        assert!(bc1.replace_chain(bc2).is_ok());
+    }
+
+    #[test]
+    fn test_replace_rejects_invalid_chain() {
+        let mut bc1 = Blokhain::new(None);
+        let bc2 = Blokhain {
+            chain: [
+                Block::genesis(),
+                Block::mine_block(Block::genesis(), 1),
+                Block::mine_block(Block::genesis(), 2),
+            ].to_vec()
+        };
+
+        let expected = Err("New chain is NOT valid".to_string());
+        assert_eq!(expected, bc1.replace_chain(bc2));
+    }
+
+    #[test]
+    fn test_replace_rejects_short_chain() {
+        let mut bc1 = Blokhain::new(None);
+        let bc2 = Blokhain::new(None);
+
+        bc1.add_block(1);
+
+        let expected = Err("New chain is NOT longer than the current one".to_string());
+        assert_eq!(expected, bc1.replace_chain(bc2));
     }
 }
