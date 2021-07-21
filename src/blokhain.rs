@@ -21,11 +21,12 @@ impl Blokhain {
 
     fn is_valid_chain(&self) -> bool {
         if self.chain.first().expect("we should have a genesis block") != &Block::genesis() {
-                dbg!("raventid");
             return false
         } else {
             for (prev_block, next_block) in self.chain.iter().skip(1).tuple_windows() {
-                if next_block.last_hash != prev_block.hash || next_block.hash != next_block.recalculate_hash() {
+                let wrong_block_sequence = next_block.last_hash != prev_block.hash;
+                let wrong_hash_in_block = next_block.hash != next_block.recalculate_hash();
+                if wrong_block_sequence || wrong_hash_in_block {
                     return false
                 }
             }
