@@ -4,7 +4,7 @@ use crate::block::Block;
 
 #[derive(Debug)]
 pub struct Blokhain {
-    chain: Vec<Block>
+    pub chain: Vec<Block>
 }
 
 impl Blokhain {

@@ -33,15 +33,18 @@ impl Backend for MyBackend {
     ) -> Result<Response<app_grpc::Chain>, Status> {
         println!("Got a request: {:?}", request);
 
+        let bc = Blokhain::new(None);
+        println!( "{:?}", bc.chain);
+
         let reply = app_grpc::Chain {
-            chain: [
+            chain: bc.chain.iter().map(|block| {
                 app_grpc::Block {
-                    timestamp: "a".to_string(),
-                    last_hash: "b".to_string(),
-                    hash: "c".to_string(),
-                    data: "d".to_string(),
+                    timestamp: format!("{:?}", block.timestamp),
+                    last_hash: format!("{:?}", block.last_hash),
+                    hash: format!("{:?}", block.hash),
+                    data: block.data.to_string(),
                 }
-            ].to_vec()
+            }).collect()
         };
 
         Ok(Response::new(reply))
