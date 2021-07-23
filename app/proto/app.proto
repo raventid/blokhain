@@ -1,0 +1,12 @@
+syntax = "proto3";
+package appserver;
+
+import "google/protobuf/empty.proto";
+
+service Backend {
+    rpc ping (google.protobuf.Empty) returns (PingReply);
+}
+
+message PingReply {
+    string message = 1;
+}

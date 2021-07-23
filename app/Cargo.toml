@@ -3,7 +3,20 @@ name = "app"
 version = "0.1.0"
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]] # Bin to run the HelloWorld gRPC server
+name = "app-server"
+path = "src/server.rs"
 
+[[bin]] # Bin to run the HelloWorld gRPC client
+name = "app-client"
+path = "src/client.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 blokhain = { path = "../blokhain" }
+tonic = "0.5"
+prost = "0.8"
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+
+[build-dependencies]
+tonic-build = "0.5"
