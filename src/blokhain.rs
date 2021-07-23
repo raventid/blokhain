@@ -8,7 +8,7 @@ pub struct Blokhain {
 }
 
 impl Blokhain {
-    fn new(genesis: Option<Block>) -> Self {
+    pub fn new(genesis: Option<Block>) -> Self {
         let chain = [genesis.unwrap_or_else(|| Block::genesis())].to_vec();
 
         Blokhain { chain }

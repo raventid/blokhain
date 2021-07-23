@@ -1,6 +1,5 @@
-mod block;
-mod blokhain;
+use blokhain::blokhain::Blokhain;
 
 fn main() {
-    println!("Hello, world!");
+    let bc = Blokhain::new(None);
 }
