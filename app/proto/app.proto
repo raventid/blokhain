@@ -5,8 +5,20 @@ import "google/protobuf/empty.proto";
 
 service Backend {
     rpc ping (google.protobuf.Empty) returns (PingReply);
+    rpc getChain (google.protobuf.Empty) returns (Chain);
 }
 
 message PingReply {
     string message = 1;
+}
+
+message Chain {
+  repeated Block chain = 1;
+}
+
+message Block {
+  string timestamp = 1;
+  string lastHash = 2;
+  string hash = 3;
+  string data = 4;
 }
