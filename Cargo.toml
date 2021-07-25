@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "blokhain",
-    "app"
+    "app",
+    "frontend"
 ]

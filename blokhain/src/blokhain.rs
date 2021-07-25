@@ -14,7 +14,7 @@ impl Blokhain {
         Blokhain { chain }
     }
 
-    fn add_block(&mut self, data: u8) {
+    pub fn add_block(&mut self, data: u8) {
         let block = Block::mine_block(self.chain.last().expect("genesis block is always here").clone(), data);
         self.chain.push(block);
     }
