@@ -7,6 +7,15 @@ service Backend {
     rpc ping (google.protobuf.Empty) returns (PingReply);
     rpc getChain (google.protobuf.Empty) returns (Chain);
     rpc addBlock (BlockData) returns (Confirmation);
+    rpc stream(stream StreamRequest) returns (stream StreamResponse);
+}
+
+message StreamRequest {
+    string message = 1;
+}
+
+message StreamResponse {
+    string message = 1;
 }
 
 message PingReply {
