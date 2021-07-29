@@ -3,6 +3,8 @@ use log::Level;
 use mogwai::prelude::*;
 use std::panic;
 use wasm_bindgen::prelude::*;
+use web_sys::console;
+
 
 mod client;
 
@@ -163,6 +165,10 @@ impl Component for List {
 pub fn main(parent_id: Option<String>) -> Result<(), JsValue> {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
     console_log::init_with_level(Level::Trace).unwrap();
+
+    // client::ping()
+    console::log_1(&"Hello using web-sys".into());
+    // panic!(client::ping().await);
 
     let gizmo = Gizmo::from(List { items: vec![], next_id: 0 });
     let view = View::from(gizmo.view_builder());
