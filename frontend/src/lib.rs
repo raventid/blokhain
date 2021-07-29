@@ -182,7 +182,7 @@ pub fn main(parent_id: Option<String>) -> Result<(), JsValue> {
         let mut stream = client::connect_server().await;
         console::log_1(&"Getting subscription to the stream".into());
         while let Some(next_message) = stream.message().await.expect("stream msg") {
-            console::log_1(&"MESSAGE WAS HITTEN".into());
+            console::log_1(&(format!("{:?}", next_message)).into());
         }
         console::log_1(&"After loop".into());
     });
