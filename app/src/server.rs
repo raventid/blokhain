@@ -169,12 +169,18 @@ impl Backend for MyBackend {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "127.0.0.1:9991".parse()?;
-    let backend = MyBackend::new();
+    let backend = BackendServer::new(MyBackend::new());
+
+    // Server::builder()
+    //     .add_service(BackendServer::new(backend))
+    //     .serve(addr)
+    //     .await?;
 
     Server::builder()
-        .add_service(BackendServer::new(backend))
-        .serve(addr)
-        .await?;
+       .accept_http1(true)
+       .add_service(tonic_web::enable(backend))
+       .serve(addr)
+       .await?;
 
     Ok(())
 }

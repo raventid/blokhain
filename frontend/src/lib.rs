@@ -166,9 +166,22 @@ pub fn main(parent_id: Option<String>) -> Result<(), JsValue> {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
     console_log::init_with_level(Level::Trace).unwrap();
 
-    // client::ping()
-    console::log_1(&"Hello using web-sys".into());
-    // panic!(client::ping().await);
+    console::log_1(&"Trying to send gRPC request and get response".into());
+
+    let (tx, rx) = txrx();
+    tx.send_async(async {
+        let response = client::ping().await;
+        console::log_1(&response.into());
+    });
+
+    let (stx, srx) = txrx();
+    stx.send_async(async {
+        console::log_1(&"Getting subscription to the stream".into());
+        let mut stream = client::connect_server().await;
+        if let Some(next_message) = stream.message().await.expect("stream msg") {
+            console::log_1(&format!("{:?}", next_message).into());
+        }
+    });
 
     let gizmo = Gizmo::from(List { items: vec![], next_id: 0 });
     let view = View::from(gizmo.view_builder());
