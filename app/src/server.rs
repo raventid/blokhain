@@ -160,6 +160,8 @@ impl Backend for MyBackend {
 
         let message = app_grpc::Message { msg: request.into_inner().msg };
 
+        dbg!(self.subscriptions.read().await);
+
         self.subscriptions.read().await.broadcast(message).await;
 
         Ok(Response::new(()))
