@@ -174,17 +174,23 @@ pub fn main(parent_id: Option<String>) -> Result<(), JsValue> {
         console::log_1(&response.into());
     });
 
-    let (stx, srx) = txrx();
-    stx.send_async(async {
+    let (stream_subscription_tx, stream_subscription_rx) = txrx();
+    let (stream_subscription_message_tx, stream_subscription_message_rx) = txrx();
+
+    stream_subscription_tx.send_async(async move {
         console::log_1(&"Connected to stream".into());
         // This await is executed only when first message is received,
         // not intuitive
         let mut stream = client::connect_server().await;
         console::log_1(&"Getting subscription to the stream".into());
         while let Some(next_message) = stream.message().await.expect("stream msg") {
-            console::log_1(&(format!("{:?}", next_message)).into());
+            stream_subscription_message_tx.send(&next_message.clone());
         }
         console::log_1(&"After loop".into());
+    });
+
+    stream_subscription_message_rx.respond(|message| {
+        console::log_1(&(format!("{:?}", message)).into());
     });
 
     let gizmo = Gizmo::from(List { items: vec![], next_id: 0 });
