@@ -36,7 +36,7 @@ impl MyBackend {
 // Add the users and its related senders will be saved in below shared struct
 #[derive(Debug)]
 struct Shared {
-    senders: HashMap<String, mpsc::Sender<app_grpc::Message>>,
+    senders: HashMap<String, mpsc::Sender<app_grpc::Block>>,
 }
 impl Shared {
     fn new() -> Self {
@@ -45,7 +45,7 @@ impl Shared {
         }
     }
 
-    async fn broadcast(&self, msg: app_grpc::Message) {
+    async fn broadcast(&self, msg: app_grpc::Block) {
         // To make our logic simple and consistency, we will broadcast to all
         // users which include msg sender.
         // On frontend, sender will send msg and receive its broadcasted msg
@@ -99,7 +99,7 @@ impl Backend for MyBackend {
     }
 
     type connectServerStream =
-        Pin<Box<dyn Stream<Item = Result<app_grpc::Message, Status>> + Send + Sync + 'static>>;
+        Pin<Box<dyn Stream<Item = Result<app_grpc::Block, Status>> + Send + Sync + 'static>>;
 
     async fn add_block(
         &self,
@@ -112,6 +112,17 @@ impl Backend for MyBackend {
         // me just a little time
         let data = request.into_inner().payload.as_bytes()[0] - 48;
         self.bc.write().expect("rwlock problem").add_block(data);
+
+        let last_block = self.bc.read().expect("rwlock problem").chain.iter().last().map(|block| {
+                app_grpc::Block {
+                    timestamp: format!("{:?}", block.timestamp),
+                    last_hash: format!("{:?}", block.last_hash),
+                    hash: format!("{:?}", block.hash),
+                    data: block.data.to_string(),
+                }
+            });
+
+        self.subscriptions.read().await.broadcast(last_block.unwrap()).await;
 
         Ok(Response::new(app_grpc::Confirmation {
             status: "Block has been added".to_string()
@@ -150,21 +161,6 @@ impl Backend for MyBackend {
         });
 
         Ok(Response::new(Box::pin(tokio_stream::wrappers::ReceiverStream::new(stream_rx)) as Self::connectServerStream))
-    }
-
-    async fn exchange(
-        &self,
-        request: Request<app_grpc::Message>,
-    ) -> Result<Response<()>, Status> {
-        println!("Stream path has been hitten");
-
-        let message = app_grpc::Message { msg: request.into_inner().msg };
-
-        dbg!(self.subscriptions.read().await);
-
-        self.subscriptions.read().await.broadcast(message).await;
-
-        Ok(Response::new(()))
     }
 }
 

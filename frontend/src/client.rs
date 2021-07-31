@@ -13,7 +13,7 @@ pub async fn ping() -> String {
     format!("RESPONSE={:?}", response)
 }
 
-pub async fn connect_server() -> Streaming<blokhain_grpc::Message> {
+pub async fn connect_server() -> Streaming<blokhain_grpc::Block> {
     let client = Client::new("http://127.0.0.1:9991".to_string());
     let mut client = BackendClient::new(client);
     let registration_message = blokhain_grpc::Registration {
