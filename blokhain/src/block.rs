@@ -2,47 +2,53 @@ use std::time::SystemTime;
 
 use sha2::{Digest, Sha256};
 
+const DIFFICULTY: i32 = 3;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Block {
     pub timestamp : SystemTime,
     pub last_hash: Vec<u8>,
     pub hash: Vec<u8>,
     pub data: u8,
+    pub nonce: u8
 }
 
 impl Block {
-    pub fn new(timestamp : SystemTime, last_hash: Vec<u8>, hash: Vec<u8>, data: u8) -> Self {
+    pub fn new(timestamp : SystemTime, last_hash: Vec<u8>, hash: Vec<u8>, data: u8, nonce: u8) -> Self {
         Block {
             timestamp,
             last_hash,
             hash,
             data,
+            nonce
         }
     }
 
     // Genesis function return the Genesis block
     // which is the first block in our blockchain.
     pub fn genesis() -> Self {
-        Self::new(std::time::UNIX_EPOCH, [0].to_vec(), [0].to_vec(), 0)
+        Self::new(std::time::UNIX_EPOCH, [0].to_vec(), [0].to_vec(), 0, 0)
     }
 
     pub fn mine_block(last_block: Block, data: u8) -> Block {
         let now = SystemTime::now();
         let last_hash = last_block.hash;
-        let hash = Self::calculate_hash(&last_hash, now, data);
+        let nonce = last_block.nonce;
+        let hash = Self::calculate_hash(&last_hash, now, data, nonce);
 
-        Block::new(now, last_hash, hash, data)
+        Block::new(now, last_hash, hash, data, nonce)
     }
 
     pub fn recalculate_hash(&self) -> Vec<u8> {
         let timestamp = self.timestamp;
         let last_hash = self.last_hash.clone();
         let data = self.data;
+        let nonce = self.nonce;
 
-        Self::calculate_hash(&last_hash, timestamp, data)
+        Self::calculate_hash(&last_hash, timestamp, data, nonce)
     }
 
-    fn calculate_hash(last_hash: &Vec<u8>, timestamp: SystemTime, data: u8) -> Vec<u8> {
+    fn calculate_hash(last_hash: &Vec<u8>, timestamp: SystemTime, data: u8, nonce: u8) -> Vec<u8> {
         let millis = timestamp
             .duration_since(std::time::UNIX_EPOCH)
             .expect("Time went backwards")
@@ -53,6 +59,7 @@ impl Block {
             .chain(millis.as_bytes())
             .chain(last_hash.clone())
             .chain([data])
+            .chain([nonce])
             .finalize()
             .to_vec()
     }
