@@ -94,7 +94,6 @@ mod tests {
                 Block::mine_block(Block::genesis(), 2),
             ].to_vec()
         };
-
         let expected = Err("New chain is NOT valid".to_string());
         assert_eq!(expected, bc1.replace_chain(bc2));
     }
