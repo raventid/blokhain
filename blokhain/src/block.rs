@@ -2,7 +2,7 @@ use std::time::SystemTime;
 
 use sha2::{Digest, Sha256};
 
-const DIFFICULTY: i32 = 3;
+const DIFFICULTY: usize = 3;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Block {
@@ -10,11 +10,11 @@ pub struct Block {
     pub last_hash: Vec<u8>,
     pub hash: Vec<u8>,
     pub data: u8,
-    pub nonce: u8
+    pub nonce: u64,
 }
 
 impl Block {
-    pub fn new(timestamp : SystemTime, last_hash: Vec<u8>, hash: Vec<u8>, data: u8, nonce: u8) -> Self {
+    pub fn new(timestamp : SystemTime, last_hash: Vec<u8>, hash: Vec<u8>, data: u8, nonce: u64) -> Self {
         Block {
             timestamp,
             last_hash,
@@ -31,12 +31,29 @@ impl Block {
     }
 
     pub fn mine_block(last_block: Block, data: u8) -> Block {
-        let now = SystemTime::now();
         let last_hash = last_block.hash;
-        let nonce = last_block.nonce;
-        let hash = Self::calculate_hash(&last_hash, now, data, nonce);
+        let mut nonce = 0;
+
+        let (now, hash) = loop {
+            let now = SystemTime::now();
+            let hash = Self::calculate_hash(&last_hash, now, data, nonce);
+
+            if Self::proof_hash(&hash) {
+                break (now, hash);
+            } else {
+                nonce += 1;
+            }
+        };
 
         Block::new(now, last_hash, hash, data, nonce)
+    }
+
+    fn proof_hash(hash: &Vec<u8>) -> bool {
+        (0..DIFFICULTY).all(|index| {
+            let number = hash.get(index)
+                             .expect("Hash length to be more than current DIFFICULTY");
+            number == &0
+        })
     }
 
     pub fn recalculate_hash(&self) -> Vec<u8> {
@@ -48,7 +65,7 @@ impl Block {
         Self::calculate_hash(&last_hash, timestamp, data, nonce)
     }
 
-    fn calculate_hash(last_hash: &Vec<u8>, timestamp: SystemTime, data: u8, nonce: u8) -> Vec<u8> {
+    fn calculate_hash(last_hash: &Vec<u8>, timestamp: SystemTime, data: u8, nonce: u64) -> Vec<u8> {
         let millis = timestamp
             .duration_since(std::time::UNIX_EPOCH)
             .expect("Time went backwards")
@@ -59,7 +76,7 @@ impl Block {
             .chain(millis.as_bytes())
             .chain(last_hash.clone())
             .chain([data])
-            .chain([nonce])
+            .chain(nonce.to_le_bytes())
             .finalize()
             .to_vec()
     }
@@ -91,5 +108,24 @@ mod tests {
         let next_block = Block::mine_block(previous_block.clone(), data);
 
         next_block.recalculate_hash() == next_block.hash
+    }
+
+    #[test]
+    fn proof_hash_positive_match() {
+        let hash = [0,0,0,5,4,2,6,7,8,6].to_vec();
+        assert!(Block::proof_hash(&hash))
+    }
+
+    #[test]
+    fn proof_hash_negative_match() {
+        let hash = [0,0,1,5,4,2,6,7,8,6].to_vec();
+        assert!(!Block::proof_hash(&hash))
+    }
+
+    #[test]
+    #[should_panic(expected = "Hash length to be more than current DIFFICULTY")]
+    fn proof_hash_failure() {
+        let hash = [].to_vec();
+        Block::proof_hash(&hash);
     }
 }
