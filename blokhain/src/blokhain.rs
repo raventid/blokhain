@@ -15,7 +15,7 @@ impl Blokhain {
     }
 
     pub fn add_block(&mut self, data: u8) {
-        let block = Block::mine_block(self.chain.last().expect("genesis block is always here").clone(), data);
+        let block = Block::mine_block(self.chain.last().expect("genesis block is always here").clone(), data, None);
         self.chain.push(block);
     }
 
@@ -57,7 +57,7 @@ mod tests {
     #[test]
     fn test_chain_is_not_valid_if_genesis_block_is_wrong() {
        let genesis = Block::genesis();
-       let not_genesis = Block::mine_block(genesis, 1);
+       let not_genesis = Block::mine_block(genesis, 1, None);
 
        assert!(!Blokhain::new(Some(not_genesis)).is_valid_chain())
     }
@@ -65,8 +65,8 @@ mod tests {
     #[test]
     fn test_chain_is_not_valid_if_some_part_of_chain_is_wrong() {
        let genesis = Block::genesis();
-       let second_block = Block::mine_block(genesis.clone(), 1);
-       let alternative_second_block = Block::mine_block(genesis.clone(), 2);
+       let second_block = Block::mine_block(genesis.clone(), 1, None);
+       let alternative_second_block = Block::mine_block(genesis.clone(), 2, None);
        let chain = Blokhain {
             chain: [genesis, second_block, alternative_second_block].to_vec()
        };
@@ -90,8 +90,8 @@ mod tests {
         let bc2 = Blokhain {
             chain: [
                 Block::genesis(),
-                Block::mine_block(Block::genesis(), 1),
-                Block::mine_block(Block::genesis(), 2),
+                Block::mine_block(Block::genesis(), 1, None),
+                Block::mine_block(Block::genesis(), 2, None),
             ].to_vec()
         };
         let expected = Err("New chain is NOT valid".to_string());
