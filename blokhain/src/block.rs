@@ -90,6 +90,7 @@ mod tests {
     use quickcheck_macros::quickcheck;
 
     impl quickcheck::Arbitrary for Block {
+      // TODO: Maybe it's not the best Arbitrary :(
       fn arbitrary(_g: &mut qc::Gen) -> Self {
           Block::genesis()
       }
